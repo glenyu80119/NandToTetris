@@ -4,6 +4,7 @@
 #include "JackTokenizer.h"
 #include <ctype.h>
 
+JackTokenizer::JackTokenizer(){};
 JackTokenizer::JackTokenizer(string filename) {
 	input.open(filename);
 
@@ -60,7 +61,6 @@ JackTokenizer::JackTokenizer(string filename) {
 	number.insert("8");
 	number.insert("9");
 	
-	wtf_token = "";
 }
 
 
@@ -199,6 +199,7 @@ TokenType JackTokenizer::tokenType() {
 			current_token = temp + " " + current_token;
 			//std::cout << current_token << endl;
 			}while(current_token[current_token.size()-1] != '\"');
+			current_token = current_token.substr(1, current_token.size() - 2);
 			tt = STRING_CONST_;
 		}
 	}
@@ -314,4 +315,8 @@ int JackTokenizer::intVal() {
 }
 string JackTokenizer::stringVal() {
 	return current_token.substr(1, current_token.size() - 2);
+}
+
+string JackTokenizer::c_token() {
+	return current_token;
 }

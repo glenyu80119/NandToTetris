@@ -1,10 +1,9 @@
 
 #include <iostream>
-#include "JackTokenizer.h"
+#include "CompilationEngine.h"
 #include <string>
 #include <map>
 #include <stdio.h>
-//include <windows.h>
 #include "dirent.h"
 #define GetCurrentDir _getcwd 
 
@@ -48,44 +47,9 @@ int main(int argc, char** argv) {
 	}
 	string inputfile = *(argv+1);
 	if (inputfile.substr(inputfile.length()-5, inputfile.length()) == ".jack") {
-		JackTokenizer jt = JackTokenizer(inputfile);
-		//string middlefile = "middle.xml";
-		string ouputfile = inputfile.substr(0, inputfile.length()-5) + ".xml";
-		ofstream test;
-		test.open(ouputfile);
-		test << "<tokens>" << endl;
-		while(jt.hasMoreTokens()) {
-			jt.advance();
-			TokenType TT = jt.tokenType();
-			if(TT == KEYWORD_) {
-				test << "<keyword> " << keywordforjack[jt.keyWord()] << " </keyword>" << endl;
-			}
-			else if(TT == SYMBOL_){
-				if (jt.symbol() == '>')
-					test << "<symbol> " << "&gt;" << " </symbol>" << endl;
-				else if (jt.symbol() == '<')
-					test << "<symbol> " << "&lt;" << " </symbol>" << endl;
-				else if (jt.symbol() == '"')
-					test << "<symbol> " << "&quot;" << " </symbol>" << endl;
-				else if (jt.symbol() == '&')
-					test << "<symbol> " << "&amp;" << " </symbol>" << endl;
-				else
-					test << "<symbol> " << jt.symbol() << " </symbol>" << endl;
-			}
-			else if (TT == STRING_CONST_) 
-				test << "<stringConstant> " << jt.stringVal() << " </stringConstant>" << endl;
-			else if (TT == INT_CONST_)
-				test << "<integerConstant> " << jt.intVal() << " </integerConstant>" << endl;
-			else if (TT == IDENTIFIER_) 
-				test << "<identifier> " << jt.identifier() << " </identifier>" << endl;
-			else
-				cout << "no type" << endl;
-		}
-		test << "</tokens>";
-		test.close();
-		/*CompilationEngine ce = CompilationEngine(middlefile, ouputfile);
-		CompilationEngine.CompileClass();*/
-		
+		string outputfile = "X" + inputfile.substr(0, inputfile.length()-5) + ".xml";
+		CompilationEngine ce = CompilationEngine(inputfile, outputfile);
+		ce.CompileClass();	
 	}
 	else {
 		DIR *dir;
@@ -97,44 +61,12 @@ int main(int argc, char** argv) {
 				string file_name = ent->d_name;
 				if (file_name.length() <= 5)
 					continue;
-				if (file_name.substr(file_name.length()-5, file_name.length()) == ".jack") {
+				if (file_name.substr(file_name.length()-5, 5) == ".jack") {
 					string fn = inputfile + "\\" + file_name;
-					JackTokenizer jt = JackTokenizer(fn);
-					string ouputfile = PWD + "\\" + fn.substr(0, fn.length()-5) + ".xml";
-					cout << ouputfile << endl;
-					ofstream test;
-					test.open(ouputfile);
-					test << "<tokens>" << endl;
-					while(jt.hasMoreTokens()) {
-						jt.advance();
-						TokenType TT = jt.tokenType();
-						if(TT == KEYWORD_) {
-							test << "<keyword> " << keywordforjack[jt.keyWord()] << " </keyword>" << endl;
-						}
-						else if(TT == SYMBOL_){
-							if (jt.symbol() == '>')
-								test << "<symbol> " << "&gt;" << " </symbol>" << endl;
-							else if (jt.symbol() == '<')
-								test << "<symbol> " << "&lt;" << " </symbol>" << endl;
-							else if (jt.symbol() == '"')
-								test << "<symbol> " << "&quot;" << " </symbol>" << endl;
-							else if (jt.symbol() == '&')
-								test << "<symbol> " << "&amp;" << " </symbol>" << endl;
-							else
-								test << "<symbol> " << jt.symbol() << " </symbol>" << endl;
-						}
-						else if (TT == STRING_CONST_) 
-							test << "<stringConstant> " << jt.stringVal() << " </stringConstant>" << endl;
-						else if (TT == INT_CONST_)
-							test << "<integerConstant> " << jt.intVal() << " </integerConstant>" << endl;
-						else if (TT == IDENTIFIER_) 
-							test << "<identifier> " << jt.identifier() << " </identifier>" << endl;
-						else
-							cout << "no type" << endl;
-
-					}
-					test << "</tokens>";
-					test.close();
+					string outputfile = PWD + "\\" + fn.substr(0, fn.length()-5) + "X.xml";
+					CompilationEngine ce = CompilationEngine(fn, outputfile);
+					cout << outputfile << endl;
+					ce.CompileClass();
 				}
 			}
 		}

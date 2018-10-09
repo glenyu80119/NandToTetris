@@ -15,10 +15,9 @@ class JackTokenizer {
 		set<string> number;
 		string current_token;
 		string parseToken(string token);
-		string wtf_token;
-		
 
 	public:
+		JackTokenizer();
 		JackTokenizer(string filename);
 		bool hasMoreTokens();
 		void advance();
@@ -28,4 +27,5 @@ class JackTokenizer {
 		string identifier();
 		int intVal();
 		string stringVal();
+		string c_token();
 };
