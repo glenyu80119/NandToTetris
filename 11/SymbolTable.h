@@ -1,23 +1,28 @@
 #include <map>
 #include <string>
-#include <global.h>
+#include "global.h"
 
 typedef struct identifier {
-	string type;
+	std::string type;
 	Category category;
 	int index;
-	bool defining;
+	bool define;
 }IDENTIFIER;
 
 class SymbolTable {
 	private:
-		map<string, IDENTIFIER> st_class;
-		map<string, IDENTIFIER> st_subroutine;
+		std::map<std::string, IDENTIFIER> st_class;
+		std::map<std::string, IDENTIFIER> st_subroutine;
+		int indexofstatic;
+		int indexoffield;
+		int indexofvar;
+		int indexofargument;
 	public:
+		SymbolTable();
 		void startSubroutine();
-		void define(string _name, string _type, Category _category);
+		void define(std::string _name, std::string _type, Category _category);
 		int VarCount(Category _category);
-		Category KindOf(string _name);
-		string TypeOf(string _name);
-		int IndexOf(string _name);
+		Category KindOf(std::string _name);
+		std::string TypeOf(std::string _name);
+		int IndexOf(std::string _name);
 };

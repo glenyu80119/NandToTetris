@@ -7,6 +7,8 @@ CompilationEngine::CompilationEngine(std::string input, std::string output) {
 	out.open(output);
 	jt = JackTokenizer(input);
 	current_token = "";
+	kind = NONE_C;
+	type = "";
 }
 
 void CompilationEngine::CompileClass(){
@@ -34,11 +36,9 @@ void CompilationEngine::CompileClass(){
 
 void CompilationEngine::eat(std::string token) {
 	if (token != current_token) {
-		//std::cout << "Token: " << token << std::endl;
-		//std::cout << "current_token: " << current_token << std::endl;
 	}
 	assert(token == current_token);
-
+	
 	if (jt.hasMoreTokens()){
 		jt.advance();
 		current_token = jt.c_token();
@@ -62,23 +62,28 @@ void CompilationEngine::advance() {
 void CompilationEngine::CompileClassVarDec() {
 	out << "<classVarDec>" << std::endl;
 	if(current_token == "static") {
+		kind = STATIC_C;
         eat("static");
 		out << "<keyword> static </keyword>" << std::endl;
 	}
 	else {
+		kind = FIELD_C;
 		eat("field");
 		out << "<keyword> field </keyword>" << std::endl;
 	}
 	//type
 	if (current_token == "int") {
+		type = "int";
 		eat("int");
 		out << "<keyword> int </keyword>" << std::endl;
 	}
 	else if (current_token == "char") {
+		type = "char";
 		eat("char");
 		out << "<keyword> char </keyword>" << std::endl;
 	}
 	else if (current_token == "boolean") {
+		type = "boolean";
 		eat("boolean");
 		out << "<keyword> boolean </keyword>" << std::endl;
 	}
@@ -86,19 +91,22 @@ void CompilationEngine::CompileClassVarDec() {
 		TokenType TT = jt.tokenType();
 		assert(TT == IDENTIFIER_);
 		out << "<identifier> " << current_token << " </identifier>" << std::endl;
+		type = current_token;
 	    advance();
 	}
 	//varName
 	TokenType TT = jt.tokenType();
 	assert(TT == IDENTIFIER_);
-	out << "<identifier> " << current_token << " </identifier>" << std::endl;
+	st.define(current_token, type, kind);
+	out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 	advance();
 	while(current_token == ",") {
 		eat(",");
 		out << "<symbol> , </symbol>" << std::endl;
 		TT = jt.tokenType();
 		assert(TT == IDENTIFIER_);
-		out << "<identifier> " << current_token << " </identifier>" << std::endl;
+		st.define(current_token, type, kind);
+		out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 		advance();
 	}
 	eat(";");
@@ -164,8 +172,10 @@ void CompilationEngine::CompileSubroutineDec() {
 
 void CompilationEngine::compileParameterList() {
 	out << "<parameterList>" << std::endl;
+	kind = ARG_C;
 	if(current_token == "int" || current_token == "char" || current_token == "boolean" || jt.tokenType() == IDENTIFIER_) {
 		//type
+		type = current_token;
 		if (current_token == "int") {
 			eat("int");
 			out << "<keyword> int </keyword>" << std::endl;
@@ -188,13 +198,15 @@ void CompilationEngine::compileParameterList() {
 		//varName
 		TokenType TT = jt.tokenType();
 		assert(TT == IDENTIFIER_);
-		out << "<identifier> " << current_token << " </identifier>" << std::endl;
+		st.define(current_token, type, kind);
+		out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 		advance();
 		
 		while(current_token == ",") {
 			eat(",");
 			out << "<symbol> , </symbol>" << std::endl;
 			//type
+			type = current_token;
 			if (current_token == "int") {
 				eat("int");
 				out << "<keyword> int </keyword>" << std::endl;
@@ -215,7 +227,8 @@ void CompilationEngine::compileParameterList() {
 			}
 			TT = jt.tokenType();
 			assert(TT == IDENTIFIER_);
-			out << "<identifier> " << current_token << " </identifier>" << std::endl;
+			st.define(current_token, type, kind);
+			out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 			advance();
 		}
 		
@@ -228,10 +241,12 @@ void CompilationEngine::compileSubroutineBody() {
 	eat("{");
 	out << "<symbol> { </symbol>" << std::endl;
 	while(current_token == "var") {
+		kind = VAR_C;
 		out << "<varDec>" << std::endl;
 		eat("var");
 		out << "<keyword> var </keyword>" << std::endl;
 		//type
+		type = current_token;
 		if (current_token == "int") {
 			eat("int");
 			out << "<keyword> int </keyword>" << std::endl;
@@ -253,14 +268,16 @@ void CompilationEngine::compileSubroutineBody() {
 		//varName
 		TokenType TT = jt.tokenType();
 		assert(TT == IDENTIFIER_);
-		out << "<identifier> " << current_token << " </identifier>" << std::endl;
+		st.define(current_token, type, kind);
+		out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 		advance();
 		while(current_token == ",") {
 			eat(",");
 			out << "<symbol> , </symbol>" << std::endl;
 			TT = jt.tokenType();
 			assert(TT == IDENTIFIER_);
-			out << "<identifier> " << current_token << " </identifier>" << std::endl;
+			st.define(current_token, type, kind);
+			out << "<identifier> " << current_token << "  type:" << st.TypeOf(current_token) << "  kind:" << st.KindOf(current_token) << " index:" << st.IndexOf(current_token)<< " </identifier>" << std::endl;
 			advance();
 		}
 		eat(";");
@@ -561,5 +578,4 @@ void CompilationEngine::CompileExpressionList() {
 	}
 	
 	out << "</expressionList>" << std::endl;
-	
 }
