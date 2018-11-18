@@ -67,7 +67,7 @@ class PongGame {
             while ((key = 0) & (~exit)) {
                 let key = Keyboard.keyPressed();
                 do bat.move();
-                do moveBall();
+                //do moveBall();
                 do Sys.wait(50);
             }
 
@@ -83,7 +83,7 @@ class PongGame {
             while ((~(key = 0)) & (~exit)) {
                 let key = Keyboard.keyPressed();
                 do bat.move();
-                do moveBall();
+                //do moveBall();
                 do Sys.wait(50);
             }
         }

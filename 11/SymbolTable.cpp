@@ -12,6 +12,8 @@ SymbolTable::SymbolTable (){
 
 void SymbolTable::startSubroutine(){
 	st_subroutine.clear();
+	indexofargument = 0;
+	indexofvar = 0;
 }
 
 void SymbolTable::define(std::string _name, std::string _type, Category _category) {

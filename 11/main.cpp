@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
 		keywordforjack[RETURN_] = "return";
 	}
 	string inputfile = *(argv+1);
-	if (inputfile.substr(inputfile.length()-5, inputfile.length()) == ".jack") {
-		string outputfile = "X" + inputfile.substr(0, inputfile.length()-5) + ".xml";
+	if (inputfile.length() > 5 && inputfile.substr(inputfile.length()-5, inputfile.length()) == ".jack") {
+		string outputfile = inputfile.substr(0, inputfile.length()-5) + ".vm";
 		CompilationEngine ce = CompilationEngine(inputfile, outputfile);
 		ce.CompileClass();	
 	}
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
 					continue;
 				if (file_name.substr(file_name.length()-5, 5) == ".jack") {
 					string fn = inputfile + "\\" + file_name;
-					string outputfile = PWD + "\\" + fn.substr(0, fn.length()-5) + "X.xml";
+					string outputfile = PWD + "\\" + fn.substr(0, fn.length()-5) + ".vm";
 					CompilationEngine ce = CompilationEngine(fn, outputfile);
 					cout << outputfile << endl;
 					ce.CompileClass();
