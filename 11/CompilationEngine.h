@@ -17,7 +17,8 @@ class CompilationEngine {
 		std::string subroutine_returntype;
 		bool constructor_or_not;
 		bool method;
-		int label_num;
+		int if_label_num;
+	    int while_label_num;
 		Category kind;
 		std::string type;
 		void eat(std::string token);

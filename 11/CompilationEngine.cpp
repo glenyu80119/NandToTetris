@@ -15,7 +15,8 @@ CompilationEngine::CompilationEngine(std::string input, std::string output) {
 	callee_function_name = "";
 	expression_list_num = 0;
 	subroutine_returntype = "";
-	label_num = 0;
+	if_label_num = 0;
+	while_label_num = 0;
 	constructor_or_not = false;
 	method = false;
 }
@@ -163,6 +164,8 @@ void CompilationEngine::CompileSubroutineDec() {
 	function_name = current_token;
 	advance();
 	st.startSubroutine();
+	if_label_num = 0;
+	while_label_num = 0;
 	eat("(");
 	out << "<symbol> ( </symbol>" << std::endl;
 	compileParameterList();
@@ -362,19 +365,22 @@ void CompilationEngine::compileIf() {
 	
 	eat("(");
 	CompileExpression();
-	codeWrite(SYMBOL_, "~", false);
+	//codeWrite(SYMBOL_, "~", false);
 	eat(")");
 	
 	eat("{");
-	std::string labelname = class_name + std::to_string(label_num++);
-	std::string labelname2 = class_name + std::to_string(label_num++);
+	std::string labelname = "IF_TRUE" + std::to_string(if_label_num);
+	std::string labelname2 = "IF_FALSE" + std::to_string(if_label_num);
+	std::string labelname3 = "IF_END" + std::to_string(if_label_num++);
 	vw.WriteIf(labelname);
-	compileStatements();
 	vw.WriteGoto(labelname2);
+	vw.WriteLabel(labelname);
+	compileStatements();
 	eat("}");
 	out << "<symbol> } </symbol>" << std::endl;
-	vw.WriteLabel(labelname);
 	if (current_token == "else") {
+		vw.WriteGoto(labelname3);
+		vw.WriteLabel(labelname2);
 		eat("else");
 		out << "<keyword> else </keyword>" << std::endl;
 		eat("{");
@@ -382,20 +388,23 @@ void CompilationEngine::compileIf() {
 		compileStatements();
 		eat("}");
 		out << "<symbol> } </symbol>" << std::endl;
+		vw.WriteLabel(labelname3);
 	}
-	vw.WriteLabel(labelname2);
+	else {
+		vw.WriteLabel(labelname2);
+	}
 	//std::cout << "if statement ended" << std::endl;
 }
 
 void CompilationEngine::compileWhile() {
-	std::string labelname = class_name + std::to_string(label_num++);
+	std::string labelname = "WHILE_EXP" + std::to_string(while_label_num);
 	vw.WriteLabel(labelname);
 	eat("while");
 	eat("(");
 	
 	CompileExpression();
 	codeWrite(SYMBOL_, "~", false);
-	std::string labelname2 = class_name + std::to_string(label_num++);
+	std::string labelname2 = "WHILE_END" + std::to_string(while_label_num++);
 	vw.WriteIf(labelname2);
 	eat(")");
 	eat("{");
@@ -567,7 +576,6 @@ void CompilationEngine::CompileTerm() {
 				vw.writeCall("String.appendChar", 2);
 				//vw.writePop(TEMP_W, 0);
 			}
-			vw.writePush(TEMP_W, 0);
 			advance();
 			out << "</term>" << std::endl;
 			return;
@@ -575,8 +583,8 @@ void CompilationEngine::CompileTerm() {
 		
 		if(current_token == "true" || current_token == "false" || current_token == "null" || current_token == "this") {
 			if(current_token == "true") {
-				codeWrite(INT_CONST_, "1", false);
-				codeWrite(SYMBOL_, "-", false);
+				codeWrite(INT_CONST_, "0", false);
+				codeWrite(SYMBOL_, "~", false);
 			}
 			else if (current_token == "null" || current_token == "false")
 				codeWrite(INT_CONST_, "0", false);
