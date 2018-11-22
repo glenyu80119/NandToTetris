@@ -335,14 +335,14 @@ void CompilationEngine::compileLet() {
 	bool arrayornot = false;
 	advance();
 	if(current_token == "[") {
-		vw.writePush(s, index);
-		vw.writePop(POINTER_W, 1);
+		//vw.writePush(s, index);
+		//vw.writePop(POINTER_W, 1);
 		eat("[");
 		out << "<symbol> [ </symbol>" << std::endl;
 		CompileExpression();
-		vw.writePush(POINTER_W, 1);
+		vw.writePush(s, index);
+		//vw.writePush(POINTER_W, 1);
 		vw.WriteArithmetic(ADD_C);
-		vw.writePop(POINTER_W, 1);
 		arrayornot = true;
 		eat("]");
 		out << "<symbol> ] </symbol>" << std::endl;
@@ -350,8 +350,12 @@ void CompilationEngine::compileLet() {
 	eat("=");
 	
 	CompileExpression();
-	if (arrayornot)
+	if (arrayornot){
+		vw.writePop(TEMP_W, 0);
+		vw.writePop(POINTER_W, 1);
+		vw.writePush(TEMP_W, 0);
 		vw.writePop(THAT_W, 0);
+	}
 	else
 		vw.writePop(s, index);
 	eat(";");
@@ -606,10 +610,11 @@ void CompilationEngine::CompileTerm() {
 				int index = st.IndexOf(temp);
 				Segment s = catetoseg(c);
 				out << "<symbol> [ </symbol>" << std::endl;
-				vw.writePush(s, index);
-				vw.writePop(POINTER_W, 1);
+				//vw.writePush(s, index);
+				//vw.writePop(POINTER_W, 1);
 				CompileExpression();
-				vw.writePush(POINTER_W, 1);
+				//vw.writePush(POINTER_W, 1);
+				vw.writePush(s, index);
 				vw.WriteArithmetic(ADD_C);
 				vw.writePop(POINTER_W, 1);
 				vw.writePush(THAT_W, 0);
